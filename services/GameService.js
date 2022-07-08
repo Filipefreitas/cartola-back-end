@@ -148,6 +148,7 @@ class Stats {
                 , percPoints: parseFloat(100 * roundTableParams[i].points / (this.POINTS_WIN * roundTableParams[i].played)).toFixed(2)
                 , percPointsHome: parseFloat(100 * roundTableParams[i].pointsHome / (this.POINTS_WIN * roundTableParams[i].playedHome)).toFixed(2)
                 , percPointsAway: parseFloat(100 * roundTableParams[i].pointsAway / (this.POINTS_WIN * roundTableParams[i].playedAway)).toFixed(2)
+                , alreadyPlayed: true
             }
 
             this.runningTable.push(game); 
@@ -161,7 +162,7 @@ class Stats {
             {   
                 //get the first object, and start looping to find a matching team in the temp stats table
                 if(this.currentTempStats[j].team === roundTableParams[i].team)
-                {   
+                {                       
                     //update stats before pushing
                     const game = {
                         roundTeamKey: (this.currentTempStats[j].roundTeamKey = roundTableParams[i].roundTeamKey)
@@ -200,6 +201,7 @@ class Stats {
                         , percPoints: parseFloat(100 * this.currentTempStats[j].points / (this.POINTS_WIN * this.currentTempStats[j].played)).toFixed(2)
                         , percPointsHome: parseFloat(100 * this.currentTempStats[j].pointsHome / (this.POINTS_WIN * this.currentTempStats[j].playedHome)).toFixed(2)
                         , percPointsAway: parseFloat(100 * this.currentTempStats[j].pointsAway / (this.POINTS_WIN * this.currentTempStats[j].playedAway)).toFixed(2)
+                        , alreadyPlayed: roundTableParams[i].alreadyPlayed
                     }
 
                     this.runningTable.push(game); 
@@ -289,45 +291,6 @@ class Stats {
             noGoalsHome: 0,
             noGoalsAway: 0,
         });
-    }
-
-    addToRoundTable(team, tournmentRound) {
-        this.roundTable.push(
-            {
-                roundTeamKey: team + "_" + tournmentRound,
-                round: tournmentRound,
-                team: team,
-                points: 0,
-                pointsHome: 0,
-                pointsAway: 0,
-                played: 0,
-                playedHome: 0,
-                playedAway: 0,
-                won: 0,
-                wonHome: 0,
-                wonAway: 0,
-                drawn: 0,
-                drawnHome: 0,
-                drawnAway: 0,
-                lost: 0,
-                lostHome: 0,
-                lostAway: 0,
-                goalsScored: 0,
-                goalsScoredHome: 0,
-                goalsScoredAway: 0,
-                goalsAgainst: 0,
-                goalsAgainstHome: 0,
-                goalsAgainstAway: 0,
-                goalsDifference: 0,
-                goalsDifferenceHome: 0,
-                goalsDifferenceAway: 0,
-                cleanSheets: 0,
-                cleanSheetsHome: 0,
-                cleanSheetsAway: 0,
-                noGoals: 0,
-                noGoalsHome: 0,
-                noGoalsAway: 0,
-            });
     }
 
     setResultsHome(homeTeam, homeScore, awayScore) {
@@ -612,30 +575,20 @@ exports.generateStandings = async (req,res)=>{
     }  
 };
 
-exports.generateStats = async (req,res)=>{    
-        gameModel.find({})
-        .then((games)=>{
-            res.json({
-                message: `Game list`
-                , data: games
-            })
-        }) 
-        .catch(err => {
-            res.status(500).json({
-            message: err    
-        })
-    })
-}
-        
 exports.generateRoundStats = async (req,res)=>{    
     try{        
         const games = await gameModel.find({})
         const league = new Stats(games);
         const stats = league.generateRoundStats();
 
+        //filter only games that have been played
+        const filteredRoundStats = stats.filter((item) => {
+            return item.alreadyPlayed === true;
+        })
+
             res.json({
                 message: "Round stats"
-                , data: stats
+                , data: filteredRoundStats
             })
         } catch(err) {
             res.status(500).json({
@@ -649,7 +602,7 @@ exports.generateRunningStats = async (req,res)=>{
         const games = await gameModel.find({})
         const league = new Stats(games);
         const runningStats = league.generateRunningStats(league.generateRoundStats());
-                
+
             res.json({
                 message: "Running stats"
                 , data: runningStats
@@ -661,7 +614,10 @@ exports.generateRunningStats = async (req,res)=>{
     }  
 };
 
-//not used
+/*
+    Not used. This generates two objects (homeStats and awayStats) inside a game object, 
+    which can not be extract in map in props in the front-end, since props does not accept objects as child components
+*/
 exports.generateMonthMap = async (req,res)=>{    
     try{       
         const games = await gameModel.find({})

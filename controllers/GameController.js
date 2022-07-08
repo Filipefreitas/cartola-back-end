@@ -7,8 +7,6 @@ router.get("/list", gameService.getAllGames)
 
 router.get("/standings", gameService.generateStandings)
 
-router.get("/stats", gameService.generateStats)
-
 router.get("/roundStats", gameService.generateRoundStats)
 
 router.get("/runningStats", gameService.generateRunningStats);
