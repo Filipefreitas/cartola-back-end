@@ -27,6 +27,9 @@ class HistStats {
     }
     
     addToTable(gameDate, homeTeam, awayTeam, homeScore, awayScore, countMatches) {
+        
+        const gameWinner = this.setResult(homeScore, awayScore);
+
         this.histTable.push(
         {
             matchKey: homeTeam + "_" + awayTeam
@@ -36,8 +39,27 @@ class HistStats {
             , homeScore: homeScore
             , awayScore: awayScore
             , gameResult: homeScore + "-" + awayScore
+            , gameWinner: gameWinner
             , countMatches: countMatches
         });
+    }
+
+    setResult(homeScore, awayScore)
+    {
+        let gameWinner = "";
+        
+        if(homeScore > awayScore)
+        {
+            return gameWinner = "home"
+        }
+        else if (homeScore < awayScore)
+        {
+            return gameWinner = "away"
+        }
+        else
+        {
+            return gameWinner = "drawn"
+        }
     }
 }
 

@@ -43,13 +43,13 @@ const HistGameSchema = new Schema({
     { 
         type: Number
     }
-    , homeStats:
+    , gameResult:
     {
-        type: Object
+        type: String
     }
-    , awayStats:
+    , gameWinner:
     {
-        type: Object
+        type: String
     }
     , date:
     {
