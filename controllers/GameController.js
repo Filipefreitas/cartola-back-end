@@ -11,6 +11,6 @@ router.get("/roundStats", gameService.generateRoundStats)
 
 router.get("/runningStats", gameService.generateRunningStats);
 
-router.get("/monthMap", gameService.generateMonthMap);
+router.get("/percDiff", gameService.generatePercDiff);
 
 module.exports = router

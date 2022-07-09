@@ -54,6 +54,18 @@ const GameSchema = new Schema({
         type: Date
         , default: Date.now
     }
+    , percPointsHome:
+    {
+        type: Number
+    }
+    , percPointsAway:
+    {
+        type: Number
+    }
+    , percDiff:
+    {
+        type: Number
+    }
 });
 
 const Game = mongoose.model('Game', GameSchema);

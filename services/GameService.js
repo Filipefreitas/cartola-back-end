@@ -511,7 +511,7 @@ class Stats {
         }
     }
 
-    mergeStats(games, runningStats){
+    addPercPoints(games, runningStats){
         
         for(let i=0; i < games.length; i++)
         {
@@ -522,22 +522,23 @@ class Stats {
             {
                 if(runningStats[j].roundTeamKey === homeKey)
                 {   
-                    games[i].homeStats = runningStats[j]
+                    games[i].percPointsHome = runningStats[j].percPointsHome
                 }
 
                 if(runningStats[j].roundTeamKey === awayKey)
                 {
-                    games[i].awayStats = runningStats[j]
+                    games[i].percPointsAway = runningStats[j].percPointsAway
+                    games[i].percDiff = (games[i].percPointsHome - games[i].percPointsAway).toFixed(2)
                     this.masterStats.push(games[i])
                 }
             } 
         }
 
         return this.masterStats;
-    }
+    }    
 }
 
-//get games
+//get all games
 exports.getAllGames = (req,res)=>{
         gameModel.find()
         .then(games=>{
@@ -554,6 +555,7 @@ exports.getAllGames = (req,res)=>{
         })
 };
 
+//generate standings table
 exports.generateStandings = async (req,res)=>{    
     try{        
         const games = await gameModel.find({})
@@ -575,20 +577,23 @@ exports.generateStandings = async (req,res)=>{
     }  
 };
 
+//generate round by round stats
 exports.generateRoundStats = async (req,res)=>{    
     try{        
         const games = await gameModel.find({})
         const league = new Stats(games);
         const stats = league.generateRoundStats();
 
-        //filter only games that have been played
+        //filter only games that have been played. Not used, filter has been moved to the front-end when loading component
+        /*
         const filteredRoundStats = stats.filter((item) => {
             return item.alreadyPlayed === true;
         })
+        */
 
             res.json({
                 message: "Round stats"
-                , data: filteredRoundStats
+                , data: stats
             })
         } catch(err) {
             res.status(500).json({
@@ -597,6 +602,7 @@ exports.generateRoundStats = async (req,res)=>{
     }  
 };
     
+//generate running stats by team for each round played 
 exports.generateRunningStats = async (req,res)=>{    
     try{        
         const games = await gameModel.find({})
@@ -614,17 +620,13 @@ exports.generateRunningStats = async (req,res)=>{
     }  
 };
 
-/*
-    Not used. This generates two objects (homeStats and awayStats) inside a game object, 
-    which can not be extract in map in props in the front-end, since props does not accept objects as child components
-*/
-exports.generateMonthMap = async (req,res)=>{    
+//used to add the percentual points difference performnace into the game object. Info displayed in the month map page.
+exports.generatePercDiff = async (req,res)=>{    
     try{       
         const games = await gameModel.find({})
         const league = new Stats(games);
         const runningStats = league.generateRunningStats(league.generateRoundStats());
-        
-        const allStats = league.mergeStats(games, runningStats)
+        const allStats = league.addPercPoints(games, runningStats)
 
             res.json({
                 message: "All stats"
