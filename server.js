@@ -12,7 +12,7 @@ app.use(express.json());
 
 const corsOptionsDelegate = function (req, callback) 
 {
-    const whitelist =  ['http://localhost:3000', 'http://127.0.0.1:3000', 'https://moonlit-douhua-76030f.netlify.app/']
+    const whitelist =  ['http://localhost:3000', 'http://127.0.0.1:3000', 'https://moonlit-douhua-76030f.netlify.app']
     let  corsOptions;
     if (whitelist.indexOf(req.header('Origin')) !== -1) 
     {
