@@ -39,7 +39,7 @@ const GameSchema = new Schema({
     }
     , isFisrtHistGame:
     {
-        type: String
+        type: Boolean
     }
     , homeScore:
     { 
