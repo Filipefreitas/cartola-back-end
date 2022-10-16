@@ -539,21 +539,29 @@ class Stats {
 }
 
 //get all games
-exports.getAllGames = (req,res)=>{
-        gameModel.find()
-        .then(games=>{
+exports.getAllGames = async (req,res)=>{    
+    try{        
+        const games = await gameModel.find({})
+        
+        //sorting by round and then game date
+        const sortedGames = games.sort((a, b) => {
+            if(a.tournmentRound > b.tournmentRound) return 1
+            if(a.tournmentRound < b.tournmentRound) return -1
+            if(a.gameDate < b.gameDate) return -1
+            if(a.gameDate < b. gameDate) return -1
+        }); 
+
             res.json({
                 games: "A list of all games"
-                , totalGames: games.length
-                , data: games
+                , totalGames: sortedGames.length
+                , data: sortedGames
             })
-        })
-        .catch(err=>{
+        } catch(err) {
             res.status(500).json({
-                message: err
-            })
+            message: err    
         })
-};
+    }  
+};      
 
 //generate standings table
 exports.generateStandings = async (req,res)=>{    
@@ -581,7 +589,12 @@ exports.generateStandings = async (req,res)=>{
 exports.generateRoundStats = async (req,res)=>{    
     try{        
         const games = await gameModel.find({})
-        const league = new Stats(games);
+
+        const sortedGames = games.sort((a, b) => {
+            return a.tournmentRound - b.tournmentRound;
+        });
+
+        const league = new Stats(sortedGames);
         const stats = league.generateRoundStats();
 
         //filter only games that have been played. Not used, filter has been moved to the front-end when loading component
@@ -606,7 +619,12 @@ exports.generateRoundStats = async (req,res)=>{
 exports.generateRunningStats = async (req,res)=>{    
     try{        
         const games = await gameModel.find({})
-        const league = new Stats(games);
+        
+        const sortedGames = games.sort((a, b) => {
+            return a.tournmentRound - b.tournmentRound;
+        });
+
+        const league = new Stats(sortedGames);
         const runningStats = league.generateRunningStats(league.generateRoundStats());
 
             res.json({
@@ -624,7 +642,12 @@ exports.generateRunningStats = async (req,res)=>{
 exports.generatePercDiff = async (req,res)=>{    
     try{       
         const games = await gameModel.find({})
-        const league = new Stats(games);
+        
+        const sortedGames = games.sort((a, b) => {
+            return a.tournmentRound - b.tournmentRound;
+        });
+
+        const league = new Stats(sortedGames);
         const runningStats = league.generateRunningStats(league.generateRoundStats());
         const allStats = league.addPercPoints(games, runningStats)
 
